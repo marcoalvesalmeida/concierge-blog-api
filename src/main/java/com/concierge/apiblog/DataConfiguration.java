@@ -16,7 +16,7 @@ public class DataConfiguration {
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(System.getenv("PG_URL"));
+        dataSource.setUrl("jdbc:postgresql://"+System.getenv("PG_HOST")+":"+System.getenv("PG_PORT")+"/"+System.getenv("PG_DATABASE"));
         dataSource.setUsername(System.getenv("PG_USER"));
         dataSource.setPassword(System.getenv("PG_PASSWORD"));
 

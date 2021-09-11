@@ -1,4 +1,4 @@
-package com.concierge.Models;
+package com.concierge.apiblog.Models;
 
 import javax.persistence.*;
 import java.io.Serializable;

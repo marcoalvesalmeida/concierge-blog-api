@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins="http://localhost:3000")
 @RequestMapping(path = "/categories")
 public class CategoryController {
     @Autowired

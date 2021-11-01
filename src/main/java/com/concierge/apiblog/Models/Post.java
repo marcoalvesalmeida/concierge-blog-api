@@ -2,13 +2,18 @@ package com.concierge.apiblog.Models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="posts")
+@JsonIdentityInfo(
+		generator = ObjectIdGenerators.PropertyGenerator.class,
+		property = "id")
 public class Post implements Serializable {
 
     private static  final long serialVersionUID = 1L;
@@ -31,6 +36,13 @@ public class Post implements Serializable {
 
 	@NotEmpty
 	private String published_date;
+
+	@ManyToMany
+	@JoinTable(
+			name = "post_category",
+			joinColumns = @JoinColumn(name = "post_id"),
+			inverseJoinColumns = @JoinColumn(name = "category_id"))
+	private List<Category> categories;
 
 	public long getId() {
 		return id;
@@ -78,6 +90,14 @@ public class Post implements Serializable {
 
 	public void setPublished_date(String published_date) {
 		this.published_date = published_date;
+	}
+
+	public List<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
 	}
 
 	@Override

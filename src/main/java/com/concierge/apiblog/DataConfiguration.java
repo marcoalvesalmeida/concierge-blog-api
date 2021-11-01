@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 
 import javax.sql.DataSource;
 
-
+/*
 @Configuration
 public class DataConfiguration {
 	@Bean
@@ -32,10 +32,7 @@ public class DataConfiguration {
         return basicDataSource;
     }
 }
-
-
-
-/*
+*/
 
 @Configuration
 public class DataConfiguration {
@@ -64,7 +61,6 @@ public class DataConfiguration {
         return adapter;
     }
 }
-*/
 
 
 

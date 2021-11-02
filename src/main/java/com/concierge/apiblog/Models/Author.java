@@ -26,6 +26,9 @@ public class Author implements Serializable {
     @NotEmpty
     private String ocupation;
 
+    @Column(columnDefinition="TEXT")
+    private String image;
+
     @OneToMany(mappedBy = "author")
     @JsonIgnore
     private List<Post> posts;
@@ -60,6 +63,14 @@ public class Author implements Serializable {
 
     public void setOcupation(String ocupation) {
         this.ocupation = ocupation;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public List<Post> getPosts() {

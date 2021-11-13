@@ -29,7 +29,7 @@ public class PostController {
 
     @RequestMapping(method=RequestMethod.GET, produces="application/json")
     public List<Post> ListAll() {
-        return _postRepository.findAll();
+        return _postRepository.findPostsByIdIsNotNullOrderByIdAsc();
     }
 
     @RequestMapping(path = {"/latest/{qtd}/{type}", "/latest/{qtd}"}, method=RequestMethod.GET, produces="application/json")

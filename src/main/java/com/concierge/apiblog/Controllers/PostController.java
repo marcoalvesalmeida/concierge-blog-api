@@ -24,12 +24,17 @@ public class PostController {
     @Autowired
     private PostRepository _postRepository;
 
-    @Autowired
-    private AuthorRepository _authorRepository;
-
     @RequestMapping(method=RequestMethod.GET, produces="application/json")
-    public List<Post> ListAll() {
-        return _postRepository.findPostsByIdIsNotNullOrderByIdAsc();
+    public ResponseEntity<List<Post>> ListAll(@RequestParam(required = false) Integer page) {
+        List<Post> posts;
+        int qtdByPage = 12;
+        if(page != null) {
+            Pageable pageable = PageRequest.of((qtdByPage*page) - qtdByPage, qtdByPage);
+            posts = _postRepository.findPostsByIdIsNotNullOrderByIdDesc(pageable);
+        }else{
+            posts = _postRepository.findPostsByIdIsNotNullOrderByIdAsc();
+        }
+        return ResponseEntity.ok(posts);
     }
 
     @RequestMapping(path = {"/latest/{qtd}/{type}", "/latest/{qtd}"}, method=RequestMethod.GET, produces="application/json")

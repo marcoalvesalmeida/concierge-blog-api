@@ -20,6 +20,9 @@ public class Category implements Serializable {
     @NotEmpty
     private String title;
 
+    @NotEmpty
+    private String color;
+
     @ManyToMany(mappedBy = "categories")
     @JsonIgnore
     private List<Post> posts;
@@ -48,17 +51,25 @@ public class Category implements Serializable {
         this.posts = posts;
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Category category = (Category) o;
-        return id == category.id && Objects.equals(title, category.title);
+        return id == category.id && Objects.equals(title, category.title) && Objects.equals(color, category.color);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title);
+        return Objects.hash(id, title, color);
     }
 
     @Override

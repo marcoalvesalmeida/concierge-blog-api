@@ -1,8 +1,10 @@
 package com.concierge.apiblog.Controllers;
 
 import com.concierge.apiblog.Models.Category;
+import com.concierge.apiblog.Models.CustomException;
 import com.concierge.apiblog.Repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins="http://localhost:3000")
 @RequestMapping(path = "/categories")
 public class CategoryController {
     @Autowired
@@ -32,19 +35,25 @@ public class CategoryController {
     }
 
     @RequestMapping(path = {"/{id}"}, method=RequestMethod.PUT,  produces="application/json", consumes="application/json")
-    public ResponseEntity<Category> Update(@PathVariable Long id, @Valid @RequestBody Category category)
+    public ResponseEntity<Serializable> Update(@PathVariable Long id, @Valid @RequestBody Category category)
     {
         try {
             if(!_categoryRepository.existsById(id)){
-                return ResponseEntity.notFound().build();
+                CustomException customException = new CustomException();
+                customException.setStatus("error");
+                customException.setMessage("Categoria não encontrada");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
             }
 
             category.setId(id);
             category = _categoryRepository.save(category);
 
-            return ResponseEntity.ok(category);
+            return ResponseEntity.status(HttpStatus.OK).body(category);
         }catch(Exception exception){
-            return ResponseEntity.notFound().build();
+            CustomException customException = new CustomException();
+            customException.setStatus("error");
+            customException.setMessage(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
         }
     }
 

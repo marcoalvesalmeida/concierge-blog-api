@@ -37,12 +37,21 @@ public class Post implements Serializable {
 	@NotEmpty
 	private String published_date;
 
+	private int views;
+
 	@ManyToMany
 	@JoinTable(
 			name = "post_category",
 			joinColumns = @JoinColumn(name = "post_id"),
 			inverseJoinColumns = @JoinColumn(name = "category_id"))
 	private List<Category> categories;
+
+	@ManyToOne
+	private Author author;
+
+	public Post() {
+		this.views = 0;
+	}
 
 	public long getId() {
 		return id;
@@ -98,6 +107,22 @@ public class Post implements Serializable {
 
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
+	}
+
+	public int getViews() {
+		return views;
+	}
+
+	public void setViews() {
+		this.views = this.views + 1;
+	}
+
+	public Author getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(Author author) {
+		this.author = author;
 	}
 
 	@Override

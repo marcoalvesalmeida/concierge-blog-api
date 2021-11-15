@@ -13,4 +13,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findPostsByIdIsNotNullOrderByIdAsc(Pageable pageable);
     List<Post> findPostsByIdIsNotNullOrderByIdDesc(Pageable pageable);
 
+    List<Post> findPostsByIdIsNotNullOrderByViewsAsc(Pageable pageable);
+    List<Post> findPostsByIdIsNotNullOrderByViewsDesc(Pageable pageable);
+
 }

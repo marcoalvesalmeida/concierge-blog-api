@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins="http://localhost:3000")
+@CrossOrigin(origins={"http://localhost:3000", "https://concierge-blog.netlify.app"})
 @RequestMapping("/posts")
 public class PostController {
     @Autowired

@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins="http://localhost:3000")
+@CrossOrigin(origins={"http://localhost:3000", "https://concierge-blog.netlify.app"})
 @RequestMapping(path = "/categories")
 public class CategoryController {
     @Autowired

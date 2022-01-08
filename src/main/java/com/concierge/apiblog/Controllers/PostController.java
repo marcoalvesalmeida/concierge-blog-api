@@ -1,9 +1,8 @@
 package com.concierge.apiblog.Controllers;
 
-import com.concierge.apiblog.Models.Author;
-import com.concierge.apiblog.Models.CustomException;
-import com.concierge.apiblog.Models.Post;
+import com.concierge.apiblog.Models.*;
 import com.concierge.apiblog.Repositories.AuthorRepository;
+import com.concierge.apiblog.Repositories.CategoryRepository;
 import com.concierge.apiblog.Repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,17 +24,73 @@ public class PostController {
     @Autowired
     private PostRepository _postRepository;
 
+    @Autowired
+    private AuthorRepository _authorRepository;
+
+    @Autowired
+    private CategoryRepository _categoryRepository;
+
     @RequestMapping(method=RequestMethod.GET, produces="application/json")
-    public ResponseEntity<List<Post>> ListAll(@RequestParam(required = false) Integer page) {
+    public ResponseEntity<CustomListPost> ListAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Long author, @RequestParam(required = false) Long category) {
         List<Post> posts;
         int qtdByPage = 12;
+        CustomListPost listAll = new CustomListPost();
         if(page != null) {
             Pageable pageable = PageRequest.of((qtdByPage*page) - qtdByPage, qtdByPage);
-            posts = _postRepository.findPostsByIdIsNotNullOrderByIdDesc(pageable);
-        }else{
+            if(author == null && category == null){
+                posts = _postRepository.findPostsByIdIsNotNullOrderByIdDesc(pageable);
+                listAll.setTotal(_postRepository.count());
+            } else if(author != null && category != null) {
+                Optional<Author> authorAux = _authorRepository.findById(author);
+                Optional<Category> categoryAux = _categoryRepository.findById(category);
+                if(categoryAux.isPresent() && authorAux.isPresent()){
+                    posts = _postRepository.findPostsByCategoriesIsContainingAndAuthorIsOrderByViewsDesc(pageable, categoryAux.get(), authorAux.get());
+                }else{
+                    posts = new ArrayList<>();
+                }
+                listAll.setTotal(posts.size());
+            } else if(author != null) {
+                Optional<Author> authorAux = _authorRepository.findById(author);
+                posts = authorAux.map(value -> _postRepository.findPostsByAuthorIsOrderByViewsDesc(pageable, value)).orElse(new ArrayList<>());
+                listAll.setTotal(posts.size());
+            } else {
+                Optional<Category> categoryAux = _categoryRepository.findById(category);
+                posts = categoryAux.map(value -> _postRepository.findPostsByCategoriesIsContainingOrderByViewsDesc(pageable, value)).orElse(new ArrayList<>());
+                listAll.setTotal(posts.size());
+            }
+        }else {
             posts = _postRepository.findPostsByIdIsNotNullOrderByIdAsc();
+            listAll.setTotal(_postRepository.count());
         }
-        return ResponseEntity.ok(posts);
+        listAll.setPosts(posts);
+        return ResponseEntity.ok(listAll);
+    }
+
+    @RequestMapping(path = {"/{id}"}, method=RequestMethod.GET,  produces="application/json")
+    public ResponseEntity<Serializable> Update(@PathVariable Long id)
+    {
+        try {
+            if(!_postRepository.existsById(id)){
+                CustomException customException = new CustomException();
+                customException.setStatus("error");
+                customException.setMessage("Post não encontrado");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
+            }
+
+            Optional<Post> postAux = _postRepository.findById(id);
+            if(postAux.isPresent()){
+                return ResponseEntity.status(HttpStatus.OK).body(postAux.get());
+            }
+            CustomException customException = new CustomException();
+            customException.setStatus("error");
+            customException.setMessage("Post não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(customException);
+        }catch(Exception exception){
+            CustomException customException = new CustomException();
+            customException.setStatus("error");
+            customException.setMessage(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
+        }
     }
 
     @RequestMapping(path = {"/latest/{qtd}/{type}", "/latest/{qtd}"}, method=RequestMethod.GET, produces="application/json")

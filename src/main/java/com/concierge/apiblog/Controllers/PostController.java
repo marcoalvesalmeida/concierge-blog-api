@@ -66,6 +66,16 @@ public class PostController {
         return ResponseEntity.ok(listAll);
     }
 
+    @RequestMapping(path = {"/search"}, method=RequestMethod.GET, produces="application/json")
+    public ResponseEntity<CustomListPost> ListAll(@RequestParam(required = true) String term) {
+        List<Post> posts;
+        CustomListPost listAll = new CustomListPost();
+        posts = _postRepository.findPostsByTitleContainsOrResumeContainsOrContentContains(term, term, term);
+        listAll.setPosts(posts);
+        listAll.setTotal(posts.size());
+        return ResponseEntity.ok(listAll);
+    }
+
     @RequestMapping(path = {"/{id}"}, method=RequestMethod.GET,  produces="application/json")
     public ResponseEntity<Serializable> Update(@PathVariable Long id)
     {

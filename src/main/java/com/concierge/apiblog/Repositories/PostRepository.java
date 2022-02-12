@@ -23,5 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findPostsByCategoriesIsContainingOrderByViewsDesc(Pageable pageable, Category category);
     List<Post> findPostsByCategoriesIsContainingAndAuthorIsOrderByViewsDesc(Pageable pageable, Category category, Author author);
 
+    List<Post> findPostsByTitleContainsOrResumeContainsOrContentContains(String search, String search2, String search3);
+
     boolean existsById(Post post);
 }

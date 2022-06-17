@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -48,6 +49,9 @@ public class Post implements Serializable {
 
 	@ManyToOne
 	private Author author;
+
+	@OneToMany(mappedBy = "post")
+	private List<Comment> comments;
 
 	public Post() {
 		this.views = 0;
@@ -123,6 +127,18 @@ public class Post implements Serializable {
 
 	public void setAuthor(Author author) {
 		this.author = author;
+	}
+
+	public void setViews(int views) {
+		this.views = views;
+	}
+
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 
 	@Override

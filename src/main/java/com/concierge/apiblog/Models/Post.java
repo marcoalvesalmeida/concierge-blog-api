@@ -26,6 +26,9 @@ public class Post implements Serializable {
     private String title;
 
 	@NotEmpty
+	private String slug;
+
+	@NotEmpty
 	private String resume;
 
 	@NotEmpty
@@ -71,6 +74,14 @@ public class Post implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getSlug() {
+		return slug;
+	}
+
+	public void setSlug(String slug) {
+		this.slug = slug;
 	}
 
 	public String getResume() {

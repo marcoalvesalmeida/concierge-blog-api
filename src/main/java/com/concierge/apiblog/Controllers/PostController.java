@@ -4,6 +4,7 @@ import com.concierge.apiblog.Models.*;
 import com.concierge.apiblog.Repositories.AuthorRepository;
 import com.concierge.apiblog.Repositories.CategoryRepository;
 import com.concierge.apiblog.Repositories.PostRepository;
+import com.concierge.apiblog.Utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +31,14 @@ public class PostController {
 
     @Autowired
     private CategoryRepository _categoryRepository;
+
+    public String createSlug(Post post, Long id){
+        String lower = post.getTitle().toLowerCase(Locale.ROOT);
+        String lowerNoSpecial = Utils.removeSpecialCharacters(lower);
+        String slug = Utils.modifySpaces(lowerNoSpecial);
+
+        return slug.concat("-").concat(String.valueOf(id));
+    }
 
     @RequestMapping(method=RequestMethod.GET, produces="application/json")
     public ResponseEntity<CustomListPost> ListAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Long author, @RequestParam(required = false) Long category) {
@@ -77,7 +87,7 @@ public class PostController {
     }
 
     @RequestMapping(path = {"/{id}"}, method=RequestMethod.GET,  produces="application/json")
-    public ResponseEntity<Serializable> Update(@PathVariable Long id)
+    public ResponseEntity<Serializable> Read(@PathVariable Long id)
     {
         try {
             if(!_postRepository.existsById(id)){
@@ -88,6 +98,33 @@ public class PostController {
             }
 
             Optional<Post> postAux = _postRepository.findById(id);
+            if(postAux.isPresent()){
+                return ResponseEntity.status(HttpStatus.OK).body(postAux.get());
+            }
+            CustomException customException = new CustomException();
+            customException.setStatus("error");
+            customException.setMessage("Post não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(customException);
+        }catch(Exception exception){
+            CustomException customException = new CustomException();
+            customException.setStatus("error");
+            customException.setMessage(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
+        }
+    }
+
+    @RequestMapping(path = {"/slug/{slug}"}, method=RequestMethod.GET,  produces="application/json")
+    public ResponseEntity<Serializable> Read(@PathVariable String slug)
+    {
+        try {
+            if(!_postRepository.existsBySlug(slug)){
+                CustomException customException = new CustomException();
+                customException.setStatus("error");
+                customException.setMessage("Post não encontrado");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(customException);
+            }
+
+            Optional<Post> postAux = _postRepository.findFirstBySlug(slug);
             if(postAux.isPresent()){
                 return ResponseEntity.status(HttpStatus.OK).body(postAux.get());
             }
@@ -139,6 +176,12 @@ public class PostController {
     public Serializable Create(@Valid @RequestBody Post post)
     {
         try {
+            Post savedPost = _postRepository.save(post);
+
+
+
+            savedPost.setSlug(createSlug(post, savedPost.getId()));
+
             return _postRepository.save(post);
         }catch(Exception exception){
             return exception;
@@ -155,6 +198,8 @@ public class PostController {
                 customException.setMessage("Post não encontrado");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(customException);
             }
+
+            post.setSlug(createSlug(post, id));
 
             post.setId(id);
             post = _postRepository.save(post);
